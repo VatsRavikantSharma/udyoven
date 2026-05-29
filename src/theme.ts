@@ -37,6 +37,10 @@ export const colors = {
   dangerBg: '#FEE2E2',
   info: '#2563EB',
   infoBg: '#DBEAFE',
+  purple: '#9333EA',
+  purpleBg: '#F3E8FF',
+  indigo: '#4F46E5',
+  indigoBg: '#E0E7FF',
   alertOrange: '#F97316',
   alertOrangeBg: '#FFEDD5',
 
