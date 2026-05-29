@@ -1,145 +1,110 @@
-import React, { useEffect, useRef } from 'react';
-import {
-  Animated, Dimensions, StyleSheet, Text, TouchableOpacity, View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius } from '../theme';
-import { Tab, useNav } from '../navigation/NavContext';
+﻿import React from "react";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors } from "../theme";
+import { Tab, useNav } from "../navigation/NavContext";
 
-const { width: SW } = Dimensions.get('window');
-const TAB_COUNT = 5;
-
-const TABS: { key: Tab; label: string; icon: string; activeIcon: string }[] = [
-  { key: 'Home',       label: 'Home',    icon: '⌂',  activeIcon: '⌂'  },
-  { key: 'Operations', label: 'Ops',     icon: '⚙',  activeIcon: '⚙'  },
-  { key: 'Alerts',     label: 'Alerts',  icon: '⚑',  activeIcon: '⚑'  },
-  { key: 'Reports',    label: 'Reports', icon: '⊞',  activeIcon: '⊞'  },
-  { key: 'Profile',    label: 'Profile', icon: '◎',  activeIcon: '◎'  },
+const { width: SW } = Dimensions.get("window");
+const TABS: { key: Tab; label: string }[] = [
+  { key: "Home",       label: "Home"     },
+  { key: "Products",   label: "Products" },
+  { key: "Quotations", label: "Quotes"   },
+  { key: "Chat",       label: "Chat"     },
+  { key: "Profile",    label: "Me"       },
 ];
+
+const HomeIcon = ({ active }: { active: boolean }) => {
+  const c = active ? colors.primary : "#94A3B8";
+  return (
+    <View style={{ width: 24, height: 22, alignItems: "center" }}>
+      <View style={{ width: 0, height: 0, borderLeftWidth: 12, borderRightWidth: 12, borderBottomWidth: 10, borderLeftColor: "transparent", borderRightColor: "transparent", borderBottomColor: c }} />
+      <View style={{ width: 16, height: 11, borderLeftWidth: 2, borderRightWidth: 2, borderBottomWidth: 2, borderColor: c, borderBottomLeftRadius: 2, borderBottomRightRadius: 2 }} />
+    </View>
+  );
+};
+
+const GridIcon = ({ active }: { active: boolean }) => {
+  const c = active ? colors.primary : "#94A3B8";
+  return (
+    <View style={{ width: 20, height: 20, flexDirection: "row", flexWrap: "wrap", gap: 3 }}>
+      {[0, 1, 2, 3].map(i => (
+        <View key={i} style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: active ? c : "transparent", borderWidth: active ? 0 : 1.5, borderColor: c }} />
+      ))}
+    </View>
+  );
+};
+
+const DocIcon = ({ active }: { active: boolean }) => {
+  const c = active ? colors.primary : "#94A3B8";
+  return (
+    <View style={{ width: 18, height: 22, borderWidth: 1.5, borderColor: c, borderRadius: 3, padding: 3, justifyContent: "space-evenly" }}>
+      {[0, 1, 2].map(i => (
+        <View key={i} style={{ height: 1.5, backgroundColor: c, borderRadius: 1, width: i === 2 ? "60%" : "100%" }} />
+      ))}
+    </View>
+  );
+};
+
+const ChatIcon = ({ active }: { active: boolean }) => {
+  const c = active ? colors.primary : "#94A3B8";
+  return (
+    <View style={{ width: 22, height: 20 }}>
+      <View style={{ width: 20, height: 16, borderWidth: 1.5, borderColor: c, borderRadius: 8 }} />
+      <View style={{ position: "absolute", bottom: 0, left: 5, width: 0, height: 0, borderTopWidth: 5, borderTopColor: c, borderRightWidth: 5, borderRightColor: "transparent" }} />
+    </View>
+  );
+};
+
+const PersonIcon = ({ active }: { active: boolean }) => {
+  const c = active ? colors.primary : "#94A3B8";
+  return (
+    <View style={{ width: 22, height: 22, alignItems: "center" }}>
+      <View style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: c, backgroundColor: active ? c + "30" : "transparent" }} />
+      <View style={{ width: 18, height: 9, borderTopLeftRadius: 9, borderTopRightRadius: 9, borderTopWidth: 1.5, borderLeftWidth: 1.5, borderRightWidth: 1.5, borderColor: c, marginTop: 2 }} />
+    </View>
+  );
+};
+
+const TAB_ICONS = [HomeIcon, GridIcon, DocIcon, ChatIcon, PersonIcon];
 
 export const BottomNav: React.FC = () => {
   const { tab, setTab } = useNav();
   const insets = useSafeAreaInsets();
-
-  const tabWidth = SW / TAB_COUNT;
-  const indicatorX = useRef(new Animated.Value(0)).current;
-  const scales = useRef(TABS.map(() => new Animated.Value(1))).current;
-
-  const activeIndex = TABS.findIndex((t) => t.key === tab);
-
-  useEffect(() => {
-    Animated.spring(indicatorX, {
-      toValue: activeIndex * tabWidth,
-      useNativeDriver: true,
-      tension: 160,
-      friction: 14,
-    }).start();
-  }, [activeIndex, indicatorX, tabWidth]);
-
-  const handlePress = (t: Tab, i: number) => {
-    Animated.sequence([
-      Animated.timing(scales[i], { toValue: 0.88, duration: 70, useNativeDriver: true }),
-      Animated.spring(scales[i], { toValue: 1, tension: 220, friction: 10, useNativeDriver: true }),
-    ]).start();
-    setTab(t);
-  };
-
   const bottomPad = Math.max(insets.bottom, 12);
+  const tabWidth = SW / TABS.length;
+  const activeIndex = TABS.findIndex(t => t.key === tab);
 
   return (
     <View style={[styles.container, { paddingBottom: bottomPad }]}>
-      {/* Sliding top-edge indicator bar */}
-      <Animated.View
-        style={[
-          styles.indicator,
-          { width: tabWidth, transform: [{ translateX: indicatorX }] },
-        ]}
-      />
-
-      {/* Glass surface overlay */}
-      <View style={styles.glass} pointerEvents="none" />
-
-      {TABS.map((t, i) => {
-        const active = tab === t.key;
-        return (
-          <Animated.View
-            key={t.key}
-            style={[styles.tabWrapper, { transform: [{ scale: scales[i] }] }]}
-          >
-            <TouchableOpacity
-              onPress={() => handlePress(t.key, i)}
-              style={styles.tabBtn}
-              activeOpacity={0.9}
-            >
-              <View style={[styles.iconWrap, active && styles.iconWrapActive]}>
-                <Text style={[styles.icon, active && styles.iconActive]}>{t.icon}</Text>
-                {/* Active glow dot */}
-                {active && <View style={styles.glowDot} />}
+      <View style={styles.indicatorTrack}>
+        <View style={[styles.indicator, { width: tabWidth, marginLeft: activeIndex * tabWidth }]} />
+      </View>
+      <View style={styles.row}>
+        {TABS.map((t, i) => {
+          const isActive = tab === t.key;
+          const IconComp = TAB_ICONS[i];
+          return (
+            <TouchableOpacity key={t.key} style={styles.tabBtn} onPress={() => setTab(t.key)} activeOpacity={0.7}>
+              <View style={[styles.iconWrap, isActive && styles.iconWrapActive]}>
+                <IconComp active={isActive} />
               </View>
-              <Text style={[styles.label, active && styles.labelActive]}>{t.label}</Text>
+              <Text style={[styles.label, isActive && styles.labelActive]}>{t.label}</Text>
             </TouchableOpacity>
-          </Animated.View>
-        );
-      })}
+          );
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.97)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(229,233,242,0.7)',
-    paddingTop: 8,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 16,
-    position: 'relative',
-  },
-  glass: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-  },
-  indicator: {
-    position: 'absolute',
-    top: 0,
-    height: 3,
-    backgroundColor: colors.primary,
-    borderRadius: 0,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
-  },
-  tabWrapper: { flex: 1, alignItems: 'center' },
-  tabBtn: { alignItems: 'center', paddingTop: 2, paddingBottom: 2 },
-  iconWrap: {
-    width: 42,
-    height: 36,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  iconWrapActive: {
-    backgroundColor: colors.primary,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.28,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  glowDot: {
-    position: 'absolute',
-    bottom: -2,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.primary,
-  },
-  icon: { fontSize: 17, color: colors.textMuted, fontWeight: '700', lineHeight: 20 },
-  iconActive: { color: '#fff' },
-  label: { fontSize: 10, color: colors.textMuted, marginTop: 4, fontWeight: '700', letterSpacing: 0.3 },
-  labelActive: { color: colors.primary },
+  container: { backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#F1F5F9", elevation: 20, shadowColor: "#1E3A8A", shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.08, shadowRadius: 12 },
+  indicatorTrack: { height: 3, backgroundColor: "transparent" },
+  indicator: { height: 3, backgroundColor: colors.primary, borderBottomLeftRadius: 3, borderBottomRightRadius: 3 },
+  row: { flexDirection: "row", height: 60 },
+  tabBtn: { flex: 1, alignItems: "center", justifyContent: "center" },
+  iconWrap: { width: 42, height: 32, alignItems: "center", justifyContent: "center", borderRadius: 12 },
+  iconWrapActive: { backgroundColor: colors.primary + "12" },
+  label: { fontSize: 10, fontWeight: "600", color: "#94A3B8", marginTop: 2 },
+  labelActive: { color: colors.primary, fontWeight: "800" },
 });

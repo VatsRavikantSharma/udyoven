@@ -12,38 +12,22 @@ import React, {
 export type RouteName =
   | 'Splash'
   | 'Login'
-  | 'Main'              // bottom-tab shell
-  | 'Orders'
-  | 'OrderDetail'
-  | 'Quotations'
+  | 'Register'
+  | 'Main'
+  | 'ProductDetail'
   | 'QuotationCreate'
   | 'QuotationDetail'
-  | 'ProductionPlan'
-  | 'ProductionLive'
-  | 'Inventory'
-  | 'InventoryItem'
-  | 'Procurement'
+  | 'DealTracking'
+  | 'DealDetail'
+  | 'ChatDetail'
   | 'Vendors'
   | 'VendorDetail'
-  | 'QC'
-  | 'QCDetail'
-  | 'Machines'
-  | 'Maintenance'
-  | 'Dispatch'
-  | 'Invoices'
-  | 'Tasks'
-  | 'Approvals'
-  | 'Reports'
-  | 'ReportDetail'
   | 'Notifications'
   | 'Profile'
-  | 'CompanyProfile'
-  | 'UserRoles'
-  | 'Preferences'
-  | 'Devices'
-  | 'AIAssistant';
+  | 'Settings'
+  | 'Help';
 
-export type Tab = 'Home' | 'Operations' | 'Alerts' | 'Reports' | 'Profile';
+export type Tab = 'Home' | 'Products' | 'Quotations' | 'Chat' | 'Profile';
 
 export type Frame = { name: RouteName; params?: any };
 

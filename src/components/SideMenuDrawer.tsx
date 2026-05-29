@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import {
   Animated, Dimensions, ScrollView, StyleSheet, Text,
   TouchableOpacity, View,
@@ -6,9 +6,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { company } from '../data/mockData';
 import { RouteName, Tab, useNav } from '../navigation/NavContext';
-import { colors, radius, shadow, spacing, typography } from '../theme';
+import { colors, radius, shadow, spacing } from '../theme';
 
-const DRAWER_W = 290;
+const DRAWER_W = 280;
 const { height: SH } = Dimensions.get('window');
 
 type MenuItem = {
@@ -23,208 +23,126 @@ type MenuItem = {
 
 const GROUPS: { title: string; items: MenuItem[] }[] = [
   {
-    title: 'COMMAND CENTER',
+    title: 'DASHBOARD',
     items: [
-      { id: 'dashboard', label: 'Dashboard',         icon: '⌂',  tab: 'Home' },
-      { id: 'orders',    label: 'Orders',             icon: '📋', route: 'Orders', badge: '42' },
-      { id: 'quotes',    label: 'Quotations',         icon: '📄', route: 'Quotations', badge: '12' },
+      { id: 'dashboard', label: 'Home',             icon: 'H', tab: 'Home' },
+      { id: 'notif',     label: 'Notifications',    icon: 'N', route: 'Notifications', badge: '3' },
     ],
   },
   {
-    title: 'PRODUCTION & INVENTORY',
+    title: 'MARKETPLACE',
     items: [
-      { id: 'prod',      label: 'Production',         icon: '⚙',  route: 'ProductionPlan' },
-      { id: 'inv',       label: 'Inventory',          icon: '📦', route: 'Inventory' },
-      { id: 'maint',     label: 'Maintenance',        icon: '🔧', route: 'Maintenance' },
-      { id: 'machines',  label: 'Machine Monitoring', icon: '⚡', route: 'Machines' },
+      { id: 'products',  label: 'Products',         icon: 'P', tab: 'Products' },
+      { id: 'vendors',   label: 'Vendors',          icon: 'V', route: 'Vendors' },
     ],
   },
   {
-    title: 'PROCUREMENT & VENDORS',
+    title: 'QUOTATION SYSTEM',
     items: [
-      { id: 'proc',      label: 'Procurement',        icon: '🛒', route: 'Procurement' },
-      { id: 'vendors',   label: 'Vendors',            icon: '🏭', route: 'Vendors' },
-      { id: 'qc',        label: 'Quality Control',    icon: '🔬', route: 'QC', badge: '4' },
+      { id: 'quotes',    label: 'All Quotations',   icon: 'Q', tab: 'Quotations', badge: '6' },
+      { id: 'new_q',     label: 'Create Quotation', icon: '+', route: 'QuotationCreate' },
     ],
   },
   {
-    title: 'LOGISTICS & FINANCE',
+    title: 'DEAL TRACKING',
     items: [
-      { id: 'disp',      label: 'Dispatch',           icon: '🚚', route: 'Dispatch', badge: '6' },
-      { id: 'acc',       label: 'Accounts & Payments',icon: '💰', route: 'Invoices' },
-      { id: 'rep',       label: 'Reports',            icon: '📊', tab: 'Reports' },
+      { id: 'deals',     label: 'Deal Tracking',    icon: 'D', route: 'DealTracking', badge: '4' },
     ],
   },
   {
-    title: 'WORKFLOW & TEAM',
+    title: 'COMMUNICATION',
     items: [
-      { id: 'appr',      label: 'Approval Center',    icon: '🛡', route: 'Approvals', badge: '4' },
-      { id: 'tasks',     label: 'Team Tasks',         icon: '✅', route: 'Tasks', badge: '5' },
-      { id: 'notif',     label: 'Notifications',      icon: '🔔', route: 'Notifications' },
+      { id: 'chat',      label: 'Chat',             icon: 'C', tab: 'Chat', badge: '3' },
     ],
   },
   {
     title: 'ACCOUNT',
     items: [
-      { id: 'pref',      label: 'Settings',           icon: '⚙',  route: 'Preferences' },
-      { id: 'help',      label: 'Help & Support',     icon: '?',  route: 'Profile' },
-      { id: 'logout',    label: 'Logout',             icon: '⏻',  action: 'logout' },
+      { id: 'prof',      label: 'Profile',          icon: 'U', tab: 'Profile' },
+      { id: 'settings',  label: 'Settings',         icon: 'S', route: 'Settings' },
+      { id: 'logout',    label: 'Logout',           icon: 'L', action: 'logout' },
     ],
   },
 ];
 
-const SHORTCUTS: MenuItem[] = [
-  { id: 'sc_ai',   label: 'AI Assistant', icon: '✦', route: 'AIAssistant' },
-  { id: 'sc_notif',label: 'Alerts',       icon: '⚑', tab: 'Alerts' },
-  { id: 'sc_prof', label: 'Profile',      icon: '◎', tab: 'Profile' },
-];
-
 export const SideMenuDrawer: React.FC = () => {
-  const { sideMenuOpen, closeMenu, push, setTab, reset, tab, role } = useNav();
+  const { sideMenuOpen, closeMenu, push, reset, setTab, role } = useNav();
   const insets = useSafeAreaInsets();
-  const drawerX = useRef(new Animated.Value(-DRAWER_W - 10)).current;
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(-DRAWER_W)).current;
 
   useEffect(() => {
-    const toX = sideMenuOpen ? 0 : -DRAWER_W - 10;
-    const toOp = sideMenuOpen ? 1 : 0;
-    Animated.parallel([
-      Animated.spring(drawerX, {
-        toValue: toX,
-        useNativeDriver: true,
-        tension: 120,
-        friction: 14,
-      }),
-      Animated.timing(overlayOpacity, {
-        toValue: toOp,
-        duration: 220,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [sideMenuOpen, drawerX, overlayOpacity]);
+    Animated.spring(slideAnim, {
+      toValue: sideMenuOpen ? 0 : -DRAWER_W,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 11,
+    }).start();
+  }, [sideMenuOpen, slideAnim]);
 
-  const handleItem = (item: MenuItem) => {
+  const handlePress = (item: MenuItem) => {
     closeMenu();
     if (item.action === 'logout') {
-      setTimeout(() => reset('Login'), 200);
-      return;
-    }
-    if (item.tab) {
-      setTimeout(() => setTab(item.tab!), 200);
-      return;
-    }
-    if (item.route) {
-      if (item.route === 'Reports') {
-        setTimeout(() => setTab('Reports'), 200);
-      } else {
-        setTimeout(() => push(item.route!), 200);
-      }
+      reset('Login');
+    } else if (item.tab) {
+      setTab(item.tab);
+    } else if (item.route) {
+      push(item.route);
     }
   };
 
   return (
     <>
-      {/* Dim overlay */}
-      <Animated.View
-        style={[styles.overlay, { opacity: overlayOpacity }]}
-        pointerEvents={sideMenuOpen ? 'auto' : 'none'}
-      >
-        <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={closeMenu} />
-      </Animated.View>
-
-      {/* Drawer panel */}
-      <Animated.View
-        style={[
-          styles.drawer,
-          {
-            paddingTop: insets.top,
-            height: SH,
-            transform: [{ translateX: drawerX }],
-          },
-        ]}
-      >
-        {/* ── Company header ── */}
+      {sideMenuOpen && (
+        <TouchableOpacity
+          style={styles.overlay}
+          activeOpacity={1}
+          onPress={closeMenu}
+        />
+      )}
+      <Animated.View style={[styles.drawer, { 
+        paddingTop: insets.top,
+        transform: [{ translateX: slideAnim }] 
+      }]}>
         <View style={styles.header}>
-          <View style={styles.logoBox}>
-            <Text style={styles.logoText}>F</Text>
+          <View style={styles.headerAvatar}>
+            <Text style={styles.headerAvatarText}>{company.name.charAt(0)}</Text>
           </View>
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.companyName} numberOfLines={1}>{company.name}</Text>
-            <Text style={styles.unitName} numberOfLines={1}>{company.unit}</Text>
+          <View>
+            <Text style={styles.headerName}>{company.name}</Text>
+            <View style={styles.roleChip}>
+              <Text style={styles.roleText}>{role}</Text>
+            </View>
           </View>
-          <TouchableOpacity onPress={closeMenu} style={styles.closeBtn}>
-            <Text style={styles.closeIcon}>✕</Text>
-          </TouchableOpacity>
         </View>
 
-        {/* Role badge */}
-        <View style={styles.roleBadgeRow}>
-          <View style={styles.roleBadge}>
-            <View style={styles.roleDot} />
-            <Text style={styles.roleText}>{role}</Text>
-          </View>
-          <Text style={styles.shiftText}>{company.shift}</Text>
-        </View>
-
-        {/* ── Menu groups ── */}
-        <ScrollView
-          style={{ flex: 1 }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        >
+        <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           {GROUPS.map((group) => (
             <View key={group.title} style={styles.group}>
               <Text style={styles.groupTitle}>{group.title}</Text>
-              {group.items.map((item) => {
-                const isActive =
-                  (item.tab && tab === item.tab) ||
-                  false;
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[styles.menuItem, isActive && styles.menuItemActive]}
-                    onPress={() => handleItem(item)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.menuIcon, isActive && styles.menuIconActive]}>
-                      <Text style={[styles.menuIconText, isActive && { color: '#fff' }]}>{item.icon}</Text>
+              {group.items.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.item}
+                  onPress={() => handlePress(item)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.iconBox}>
+                    <Text style={styles.icon}>{item.icon}</Text>
+                  </View>
+                  <Text style={styles.label}>{item.label}</Text>
+                  {item.badge && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{item.badge}</Text>
                     </View>
-                    <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>
-                      {item.label}
-                    </Text>
-                    {item.badge ? (
-                      <View style={styles.badgePill}>
-                        <Text style={styles.badgeText}>{item.badge}</Text>
-                      </View>
-                    ) : null}
-                    {!item.badge && item.action !== 'logout' && (
-                      <Text style={styles.chevron}>›</Text>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+                  )}
+                </TouchableOpacity>
+              ))}
             </View>
           ))}
         </ScrollView>
 
-        {/* ── Quick shortcuts footer ── */}
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          <View style={styles.divider} />
-          <Text style={styles.groupTitle}>QUICK ACCESS</Text>
-          <View style={styles.shortcutRow}>
-            {SHORTCUTS.map((sc) => (
-              <TouchableOpacity
-                key={sc.id}
-                style={styles.shortcut}
-                onPress={() => handleItem(sc)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.shortcutIcon}>{sc.icon}</Text>
-                <Text style={styles.shortcutLabel}>{sc.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <Text style={styles.version}>FactoryOps ERP · v1.0.0</Text>
+        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+          <Text style={styles.footerText}>Udyoven Trade v1.2.0</Text>
         </View>
       </Animated.View>
     </>
@@ -233,117 +151,69 @@ export const SideMenuDrawer: React.FC = () => {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(15,23,42,0.52)',
-    zIndex: 90,
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 900,
   },
   drawer: {
     position: 'absolute',
-    top: 0,
-    left: 0,
+    top: 0, bottom: 0,
     width: DRAWER_W,
-    backgroundColor: colors.surface,
-    zIndex: 100,
-    ...shadow.raised,
+    backgroundColor: '#fff',
+    zIndex: 1000,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
-  },
-  logoBox: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
+    padding: spacing.xl,
+    paddingBottom: spacing.xxl,
     backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  logoText: { color: '#fff', fontWeight: '900', fontSize: 20 },
-  companyName: { fontSize: 13, fontWeight: '800', color: colors.text },
-  unitName: { fontSize: 11, color: colors.textMuted, fontWeight: '600', marginTop: 2 },
-  closeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeIcon: { fontSize: 14, color: colors.textMuted, fontWeight: '700' },
-  roleBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 10,
-    backgroundColor: colors.surfaceAlt,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
-  },
-  roleBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E0E7FF',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: radius.pill,
-  },
-  roleDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary, marginRight: 6 },
-  roleText: { fontSize: 11, fontWeight: '800', color: colors.primary, letterSpacing: 0.3 },
-  shiftText: { fontSize: 10, fontWeight: '600', color: colors.textMuted },
-  group: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
-  groupTitle: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: colors.textSubtle,
-    letterSpacing: 1.4,
-    marginBottom: 6,
-    paddingLeft: 4,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: radius.md,
-    marginBottom: 2,
-  },
-  menuItemActive: { backgroundColor: '#EEF2FF' },
-  menuIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 9,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
+  headerAvatar: {
+    width: 50, height: 50, borderRadius: 25,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center', justifyContent: 'center',
     marginRight: 12,
   },
-  menuIconActive: { backgroundColor: colors.primary },
-  menuIconText: { fontSize: 15, color: colors.text },
-  menuLabel: { flex: 1, fontSize: 13, fontWeight: '700', color: colors.text },
-  menuLabelActive: { color: colors.primary },
-  chevron: { fontSize: 18, color: colors.textSubtle },
-  badgePill: {
-    backgroundColor: colors.primary,
+  headerAvatarText: { fontSize: 22, fontWeight: '900', color: '#fff' },
+  headerName: { fontSize: 16, fontWeight: '800', color: '#fff', marginBottom: 4 },
+  roleChip: { 
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 10, paddingVertical: 2,
     borderRadius: radius.pill,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    minWidth: 24,
+  },
+  roleText: { fontSize: 10, fontWeight: '700', color: '#fff' },
+  scroll: { flex: 1, paddingVertical: spacing.lg },
+  group: { marginBottom: spacing.xl },
+  groupTitle: {
+    fontSize: 11, fontWeight: '800', color: colors.textSubtle,
+    letterSpacing: 1, paddingHorizontal: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  item: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingVertical: 10,
+  },
+  iconBox: {
+    width: 32, height: 32, borderRadius: 8,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center', justifyContent: 'center',
+    marginRight: 12,
+  },
+  icon: { fontSize: 14, fontWeight: '700', color: colors.primary },
+  label: { flex: 1, fontSize: 14, fontWeight: '700', color: colors.text },
+  badge: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 8, paddingVertical: 2,
+    borderRadius: radius.pill,
   },
   badgeText: { fontSize: 10, fontWeight: '800', color: '#fff' },
   footer: {
-    paddingHorizontal: spacing.md,
+    padding: spacing.xl,
+    borderTopWidth: 1, borderTopColor: colors.divider,
   },
-  divider: { height: 1, backgroundColor: colors.divider, marginBottom: spacing.md },
-  shortcutRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 },
-  shortcut: { alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8 },
-  shortcutIcon: { fontSize: 18, marginBottom: 4, color: colors.text },
-  shortcutLabel: { fontSize: 10, fontWeight: '700', color: colors.textMuted },
-  version: { fontSize: 10, color: colors.textSubtle, textAlign: 'center', marginTop: 4, fontWeight: '600' },
+  footerText: { fontSize: 12, fontWeight: '600', color: colors.textSubtle },
 });

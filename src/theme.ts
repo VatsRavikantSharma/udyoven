@@ -21,6 +21,7 @@ export const colors = {
   text: '#0F172A',           // graphite
   textMuted: '#64748B',
   textSubtle: '#94A3B8',
+  textSecondary: '#64748B',  // alias for textMuted
   textInverse: '#FFFFFF',
 
   // Steel gray
@@ -99,3 +100,4 @@ export const shadow = {
     elevation: 6,
   },
 };
+

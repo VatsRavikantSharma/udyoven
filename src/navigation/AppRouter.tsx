@@ -1,85 +1,66 @@
-// Central screen router. Maps RouteName values from NavContext to screen components.
-import React from 'react';
+﻿// Central screen router for B2B Factory-Vendor Marketplace.
+import React, { useEffect } from 'react';
+import { BackHandler } from 'react-native';
 import { MainShell } from '../components/MainShell';
 import { NavProvider, useNav } from './NavContext';
 
-// ── Screens ──
 import { SplashScreen } from '../screens/SplashScreen';
 import { LoginScreen } from '../screens/LoginScreen';
-import { OrdersScreen } from '../screens/OrdersScreen';
-import { OrderDetailScreen } from '../screens/OrderDetailScreen';
+import { ProductsScreen } from '../screens/ProductsScreen';
+import { ProductDetailScreen } from '../screens/ProductDetailScreen';
 import { QuotationsScreen } from '../screens/QuotationsScreen';
 import { QuotationCreateScreen } from '../screens/QuotationCreateScreen';
+import { DealTrackingScreen } from '../screens/DealTrackingScreen';
+import { DealDetailScreen } from '../screens/DealDetailScreen';
 import { QuotationDetailScreen } from '../screens/QuotationDetailScreen';
-import { ProductionPlanScreen } from '../screens/ProductionPlanScreen';
-import { ProductionLiveScreen } from '../screens/ProductionLiveScreen';
-import { InventoryScreen } from '../screens/InventoryScreen';
-import { InventoryItemScreen } from '../screens/InventoryItemScreen';
-import { ProcurementScreen } from '../screens/ProcurementScreen';
+import { ChatScreen } from '../screens/ChatScreen';
+import { ChatDetailScreen } from '../screens/ChatDetailScreen';
+import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { VendorsScreen } from '../screens/VendorsScreen';
 import { VendorDetailScreen } from '../screens/VendorDetailScreen';
-import { DispatchLogisticsScreen } from '../screens/DispatchLogisticsScreen';
-import { AccountsPaymentsScreen } from '../screens/AccountsPaymentsScreen';
-import { ApprovalCenterScreen } from '../screens/ApprovalCenterScreen';
-import { TeamTasksScreen } from '../screens/TeamTasksScreen';
-import { ReportsScreen } from '../screens/ReportsScreen';
-import { ReportDetailScreen } from '../screens/ReportDetailScreen';
-import { NotificationsScreen } from '../screens/NotificationsScreen';
-import { QCScreen } from '../screens/QCScreen';
-import { QCDetailScreen } from '../screens/QCDetailScreen';
-import { MachinesScreen } from '../screens/MachinesScreen';
-import { MaintenanceScreen } from '../screens/MaintenanceScreen';
-import { AIAssistantScreen } from '../screens/AIAssistantScreen';
-import {
-  CompanyProfileScreen,
-  UserRolesScreen,
-  PreferencesScreen,
-  DevicesScreen,
-} from '../screens/SettingsScreens';
+import { ProfileScreen } from '../screens/ProfileScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 
 function RootNavigator() {
-  const { stack } = useNav();
+  const { stack, pop } = useNav();
   const current = stack[stack.length - 1];
   const name = current.name;
   const params = current.params;
 
-  // Main tab shell — includes BottomNav, SideMenuDrawer, floating AI button
+  // Handle hardware back button on Android
+  useEffect(() => {
+    const onBackPress = () => {
+      if (stack.length > 1) {
+        pop();
+        return true; 
+      }
+      return false;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [stack, pop]);
+
   if (name === 'Main') {
     return <MainShell />;
   }
 
-  // Push routes (full-screen, no bottom nav)
   switch (name) {
     case 'Splash':           return <SplashScreen />;
     case 'Login':            return <LoginScreen />;
-    case 'Orders':           return <OrdersScreen />;
-    case 'OrderDetail':      return <OrderDetailScreen params={params} />;
+    case 'Products':         return <ProductsScreen />;
+    case 'ProductDetail':    return <ProductDetailScreen params={params} />;
     case 'Quotations':       return <QuotationsScreen />;
-    case 'QuotationCreate':  return <QuotationCreateScreen />;
+    case 'QuotationCreate':  return <QuotationCreateScreen params={params} />;
     case 'QuotationDetail':  return <QuotationDetailScreen params={params} />;
-    case 'ProductionPlan':   return <ProductionPlanScreen />;
-    case 'ProductionLive':   return <ProductionLiveScreen />;
-    case 'Inventory':        return <InventoryScreen />;
-    case 'InventoryItem':    return <InventoryItemScreen params={params} />;
-    case 'Procurement':      return <ProcurementScreen />;
+    case 'DealTracking':     return <DealTrackingScreen />;
+    case 'DealDetail':       return <DealDetailScreen params={params} />;
+    case 'Chat':             return <ChatScreen />;
+    case 'ChatDetail':       return <ChatDetailScreen params={params} />;
+    case 'Notifications':    return <NotificationsScreen />;
     case 'Vendors':          return <VendorsScreen />;
     case 'VendorDetail':     return <VendorDetailScreen params={params} />;
-    case 'Dispatch':         return <DispatchLogisticsScreen />;
-    case 'Invoices':         return <AccountsPaymentsScreen />;
-    case 'Approvals':        return <ApprovalCenterScreen />;
-    case 'Tasks':            return <TeamTasksScreen />;
-    case 'Reports':          return <ReportsScreen />;
-    case 'ReportDetail':     return <ReportDetailScreen params={params} />;
-    case 'Notifications':    return <NotificationsScreen />;
-    case 'QC':               return <QCScreen />;
-    case 'QCDetail':         return <QCDetailScreen params={params} />;
-    case 'Machines':         return <MachinesScreen />;
-    case 'Maintenance':      return <MaintenanceScreen />;
-    case 'AIAssistant':      return <AIAssistantScreen />;
-    case 'CompanyProfile':   return <CompanyProfileScreen />;
-    case 'UserRoles':        return <UserRolesScreen />;
-    case 'Preferences':      return <PreferencesScreen />;
-    case 'Devices':          return <DevicesScreen />;
+    case 'Profile':          return <ProfileScreen />;
+    case 'Settings':         return <SettingsScreen />;
     default:                 return <MainShell />;
   }
 }
